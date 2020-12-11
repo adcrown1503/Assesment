@@ -1,0 +1,966 @@
+﻿@model Assesment.Models.WrapperViewEditProject
+@{
+    ViewBag.Title = "GateDetail";
+}
+<h2 style="color:blue">
+    <u>
+        @Model.dbview[0].name - @Model.dbview[0].gateDesc - @Model.dbview[0].gvLine
+    </u>
+</h2>
+@Html.ActionLink("(Delete Estimate)", "DeleteEstimate", new { pid = Model.dbview[0].gvProjectId, gid = Model.dbview[0].gvGateId, gl = Model.dbview[0].gvLine }, new { style = "color:red;" })
+
+
+<div class="form-horizontal">
+
+
+
+
+    <form>
+        <div class="form-group" style="display:none">
+            <label for="txtGateRecNo">Gate Record No</label>
+            <input type="text" class="form-control" id="txtGateRecNo" value=@Model.dbview[0].gvId>
+            <input type="text" class="form-control" id="txtGateId" value=@Model.dbview[0].gvGateId>
+            <input type="text" class="form-control" id="txtProjId" value=@Model.dbview[0].gvProjectId>
+            <input type="text" class="form-control" id="txtGateLine" value=@Model.dbview[0].gvLine>
+        </div>
+
+        <div class="form-group">
+            <label for="txtgvAssumption" class="control-label col-md-2">Gate Assumptions</label>
+            <textarea cols="100" id="txtgvAssumption" name="txtgvAssumption" rows="5">@Model.dbview[0].gvAssumption</textarea>
+        </div>
+        <div class="form-group">
+
+            <label for="txtgvComments" class="control-label col-md-2">Gate Comments</label>
+            <textarea cols="100" id="txtgvComments" name="txtgvComments" rows="5">@Model.dbview[0].gvComments</textarea>
+
+        </div>
+        <div class="form-group">
+            @{ string sts = Model.dbview[0].gvStatus;}
+            <label class="control-label col-md-2">Gate Status</label>
+
+            @*@Html.DropDownList("gvStatus", new List<SelectListItem> {
+
+                             new SelectListItem {Text="Draft",Value="Draft"},
+                            new SelectListItem {Text="Final",Value="Final"}
+                }, Model.dbview[0].gvStatus)*@
+            <select id="gvStatus" name="gvStatus" class="form-control">
+                @if (sts == "Draft")
+                {
+                    @: <option selected value="Draft">Draft</option>
+                }
+                else
+                {
+                    @: <option value="Draft">Draft</option>
+                }
+                @if (sts == "Final")
+                {
+                    @: <option selected value="Final">Final</option>
+                }
+                else
+                {
+                    @: <option value="Final">Final</option>
+                }
+            </select>
+        </div>
+
+        <table class="table" border="0">
+            <tr>
+                <td>
+
+                    <label>Select Existng Functionality</label>
+                </td>
+                <td>
+                    @Html.DropDownList("FuncId", new SelectList(Model.functionList, "FuncId", "FuncName"), "Select", new { @class = "form-control" })
+                </td>
+                @{ for (int i = 0; i < 25; i++)
+                    {
+
+                        <td></td>
+
+                    };}
+
+
+                <td><button type="button" class="btn btn-primary btn-sm" id="btnAddRow">Add Row</button></td>
+            </tr>
+
+        </table>
+
+        <input type="text" id="txtFunc" size="300" style="display:none" />
+        <input type="text" id="txtFuncId" size="3" style="display:none" />
+        <input type="text" id="txtTotalDays" size="3" style="display:none" />
+
+
+    </form>
+
+
+    <table id="tblGrid" class="table table-sm">
+        <thead>
+            <tr style="background-color:#00FF00">
+                <th style="display:none">Function Id</th>
+                <th style="display:none">ProjFuncId</th>
+                <th>Function Name</th>
+                <th>Application</th>
+                <th>Release</th>
+                <th>Total Days</th>
+                <th style="display:none">JsonObject</th>
+                <th colspan="2" style="text-align:center">Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.groupFunction)
+            {
+                <tr class='gridRow'>
+
+                    <td style="display:none"><input type="text" id="fid" value="@item.FuncId" /></td>
+                    <td style="display:none"><input type="text" id="pfid" value="@item.ProjFuncId" /></td>
+                    <td>@item.FuncName</td>
+                    <td>@Html.DropDownListFor(model => item.appid, new SelectList(Model.appList, "appid", "appname", item.appid))</td>
+
+                    <td>@Html.DropDownListFor(model => item.releaseId, new SelectList(Model.relList, "releaseId", "releaseName", item.releaseId))</td>
+                    <td align="center"><span id='totaldays'>@item.totalDays</span></td>
+                    <td style="display:none">
+                        <input type="text" id='fjobj' value="@item.daysString" />
+                        <input type="text" id='txtdayChange' value="@item.daysString" />
+                    </td>
+                    <td><button class="btn btn-primary btn-sm delete-row" name='btnDel'>Delete</button></td>
+                    <td><button class="btn btn-primary btn-sm modify-row" name='btnModify'>Modify</button></td>
+                </tr>
+
+
+            }
+
+        </tbody>
+    </table>
+    <button id="btnSave" class="btn btn-primary btn-sm">Save</button><label><span id="msg" style="font-family:Verdana;color:red"></span></label>
+
+<textarea cols="199" id="txtObject" name="txtObject" rows="25" style="display:none"></textarea>
+    <input type="text" id="txtSingleJsonObj" style="display:none" />
+    <input type="text" id="txtDeleteRow" style="display:none" />
+    <div id="myModal" class="modal fade" data-backdrop="static" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Estimate for </h4><span id="txtSelectedFunction" style="color:red "></span>
+                </div><br /><br />
+                <div class="modal-body">
+                    <table style="display:none">
+                        <tr>
+                            <td>PhaseId</td>
+                            @foreach (var x in Model.phaselist)
+                            {
+                                <td class="phaseClass">@x.phaseCode</td>
+                            }
+
+                        </tr>
+
+                    </table>
+                    <table border="1" class="table">
+
+                        <tr>
+                            <td style="background-color:cadetblue">Role</td>
+
+                            @foreach (var x in Model.phaselist)
+                            {
+                                <td align="center" style="background-color:cadetblue">@x.phaseDesc</td>
+                            }
+                            <td style="display:none">RoleId</td>
+
+                        </tr>
+                        @foreach (var y in Model.roleList)
+                        {
+                            <tr>
+                                <td style="background-color:cadetblue">
+                                    @y.roleName
+                                </td>
+                                @for (int x = 0; x < Model.phaselist.Count(); x++)
+                                {
+                                    <td align="center"><input type="text" size="3" id="roleDays" class="daysClass" /><span id="estid" style="display:none" class="estclass"></span></td>
+                                }
+                                <td style="display:none"><input type="text" size="3" id="roleId" class="roleClass" value="@y.roleId" /></td>
+                            </tr>
+
+                        }
+                    </table>
+
+
+
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" id="btnCanModal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnAddModal">Add</button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div style=" position:absolute;top:80px;left:900px;overflow-y: auto;height: 200px;">
+        <table border="0">
+            <tr>
+                <td> <button class="btn btn-primary" id="btnSaveAs">Copy gate as</button></td>
+                <td>
+
+
+                    @Html.Partial("~/Views/Project/ShowGates.cshtml")
+
+
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div style="background-color:black;  position:absolute;top:130px;left:905px;overflow-y: auto;height: 200px;">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</div>
+    <div id="fileupload" style="background-color:gainsboro;  position:absolute;top:125px;left:900px;overflow-y: auto;height: 200px;">
+        @using (Html.BeginForm("UploadFile", "Project", FormMethod.Post, new { enctype = "multipart/form-data", id = "fileForm" }))
+        {
+            <table>
+
+
+                @*<tr><td colspan="2"><hr /></td></tr>*@
+                <tr><td colspan="2"></td></tr>
+                <tr><td><input type="file" id="file" name="file"></td><td><input type="button" id="btnUpload" value="Upload" /></td></tr>
+                <tr>
+                    <td colspan="2">Uploaded Files</td>
+                </tr>
+                @foreach (var item in Model.attachments)
+                {
+                    <tr class="moon">
+                        <td colspan="2">
+                            <a href="~/UploadedFiles/@item.fileName">@item.fileName</a>
+
+                            @*@Html.ActionLink("(Delete)", "DeleteAttachment", new { id = item.attacheId }, new { style = "color:red;" })*@
+                            @*<form id="delForm" method="Post" action="Project/DeleteAttachment?id=@item.attacheId">*@
+                            <button type="button" id="btnDelAttachment" value=@item.attacheId>Delete</button>
+                            @*@Html.ActionLink("(Delete)", "DeleteAttachment", "Project", new { id = item.attacheId }, new { @class = "aClass", style = "color:red;" })*@
+                            @*</form>*@
+
+                        </td>
+                    </tr>
+                }
+
+
+            </table>
+
+
+        }
+    </div>
+
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var rowObject = new Object();
+
+        //$("#tblGrid").find('.gridRow').each(function () {
+        //    debugger
+        //    var currentRow = $(this).closest("tr");
+        //});
+        $('.moon').click(function () {
+            var cRow = $(this).closest("tr")
+            var bval = cRow.find("button:eq(0)").val();
+
+            var input01 = $("<input>").attr("type", "hidden").attr("name", "projectId").val($("#txtProjId").val());
+            var input02 = $("<input>").attr("type", "hidden").attr("name", "gateId").val($("#txtGateId").val());
+            var input03 = $("<input>").attr("type", "hidden").attr("name", "lineNo").val($("#txtGateLine").val());
+            var input04 = $("<input>").attr("type", "hidden").attr("name", "attachId").val(bval);
+
+            $("#fileForm").append($(input01));
+            $("#fileForm").append($(input02));
+            $("#fileForm").append($(input03));
+            $("#fileForm").append($(input04));
+
+            $("#fileForm").submit();
+            return false;
+        });
+        $("#btnUpload").click(function () {
+            debugger
+            var filename = $('input[type=file]').val().split('\\').pop();
+           // alert(filename);
+            if (!filename.length > 0) {
+                alert("please select file");
+                return false;
+
+            }
+            //if (typeof ($("#fileSelect").val()) === "undefined") {
+
+            //}
+            //if ($("#fileSelect").val() == "") {
+            //    alert("please select file");
+            //    return false;
+            //}
+
+
+
+            var input01 = $("<input>").attr("type", "hidden").attr("name", "projectId").val($("#txtProjId").val());
+            var input02 = $("<input>").attr("type", "hidden").attr("name", "gateId").val($("#txtGateId").val());
+            var input03 = $("<input>").attr("type", "hidden").attr("name", "lineNo").val($("#txtGateLine").val());
+            var input04 = $("<input>").attr("type", "hidden").attr("name", "attachId").val(0);
+
+            $("#fileForm").append($(input01));
+            $("#fileForm").append($(input02));
+            $("#fileForm").append($(input03));
+            $("#fileForm").append($(input04));
+
+           // $(document.body).append(form);
+            $("#fileForm").submit();
+            return false;
+        });
+
+        $("#btnSaveAs").click(function () {
+            if ($("#AppGates :selected").val() == "") {
+                alert("Please select gate");
+                return false;
+            }
+            //alert($("#AppGates :selected").text());
+            //alert($("#AppGates :selected").val());
+
+
+            var form = $(document.createElement('form'));
+            $(form).attr("name", "xform");
+            $(form).attr("action", "CopyGate");
+
+            $(form).attr("method", "POST");
+
+            var input01 = $("<input>").attr("type", "hidden").attr("name", "projectId").val($("#txtProjId").val());
+            var input02 = $("<input>").attr("type", "hidden").attr("name", "gateId").val($("#txtGateId").val());
+            var input03 = $("<input>").attr("type", "hidden").attr("name", "lineNo").val($("#txtGateLine").val());
+            var input04 = $("<input>").attr("type", "hidden").attr("name", "newGateId").val($("#AppGates :selected").val());
+
+            $(form).append($(input01));
+            $(form).append($(input02));
+            $(form).append($(input03));
+            $(form).append($(input04));
+
+            $(document.body).append(form);
+            $(form).submit();
+        });
+        $("#btnAddRow").click(function () {
+            if ($("#txtFuncId").val().length == 0) {
+
+                alert("Please select functionality");
+                $("#FuncId").focus();
+                return false;
+            }
+            var functionExist = "Off";
+            var fn = "";
+            $("#tblGrid").find('.gridRow').each(function () {
+               debugger
+                var currentRow = $(this).closest("tr");
+                var col1 = currentRow.find("input:eq(0)").val();
+                fn = $("#txtFunc").val();
+                if ($("#txtFuncId").val() == col1) {
+
+                    alert("functionality already in use")
+                    functionExist = "On";
+                    return false;
+
+                }
+
+            });
+            if (functionExist == "Off") {
+                clearDays();
+                $("#txtSelectedFunction").text(fn);
+                $("#myModal").modal('show');
+            }
+        });
+
+
+        $("#FuncId").change(function () {
+
+            $("#txtFuncId").val($('#FuncId :selected').val());
+            $("#txtFunc").val($('#FuncId :selected').text());
+
+        });
+
+        $("#btnCanModal").click(function () {
+
+            $("#btnAddModal").html("Add");
+           $("#myModal").modal('hide');
+        });
+
+        function clearDays() {
+
+            $('.daysClass').each(function (i, e) {
+                $(this).val("");
+                $('.estclass').text("");
+            })
+
+        }
+
+    $("#btnAddModal").click(function () {
+
+            var totalDays = getTotalDays();
+
+            if (totalDays == 0) {
+                alert("Please enter days");
+                return;
+            } else {
+                $("#txtTotalDays").val(totalDays);
+            }
+
+
+
+            var TotalPhase = $('.phaseClass').length;
+            var TotalRole = $('.roleClass').length;
+            var CounterPhase = 0;
+        var CounterRole = 0;
+        var CounterTxtDay = 0;
+            var singleTextBoxRecord = "";
+            var singleFuncEstimate = "";
+            $('.daysClass').each(function (i, e) {
+
+                if ($.isNumeric($(this).val())) {
+
+                    if ($(this).val() > 0) {
+
+                        var days = $(this).val();
+                        var phaseId = $(".phaseClass").eq(CounterPhase).text();
+                        var roleId = $(".roleClass").eq(CounterRole).val();
+                        var estid = $(".estclass").eq(CounterTxtDay).text();
+                        var flag = "E";
+                        singleTextBoxRecord = estid+","+phaseId + "," + roleId + "," + days+","+flag;
+                        if (singleFuncEstimate.length > 0) {
+                            singleFuncEstimate = singleFuncEstimate + "-" + singleTextBoxRecord;
+                        } else {
+
+                            singleFuncEstimate = singleTextBoxRecord;
+                        }
+                    }
+                }
+                CounterPhase++;
+                CounterTxtDay++;
+
+                if (CounterPhase >= TotalPhase) {
+                    CounterPhase = 0;
+
+                    CounterRole++;
+                }
+                if (CounterRole >= TotalRole) {
+                    CounterRole = 0;
+                }
+            });
+
+            $("#txtSingleJsonObj").val(singleFuncEstimate);
+
+             var appModel = '@Html.Raw(Json.Encode(Model.appList))';
+            var appObj = JSON.parse(appModel)
+
+            var relModel = '@Html.Raw(Json.Encode(Model.relList))';
+            var relObj = JSON.parse(relModel)
+
+            var appString = "";
+            appString = "<select id='appdrop' name='appdrop'>";
+            $.each(appObj, function (index, value) {
+                appString = appString + "<option value=' " + value.appid + "'>" + value.appname + "</option>";
+
+            });
+
+            var relString = "";
+            relString = "<select id='reldrop' name='reldrop'>";
+            $.each(relObj, function (index, value) {
+                relString = relString + "<option value=' " + value.releaseId + "'>" + value.releaseName + "</option>";
+
+            });
+
+            var dropdownfn = $('#FuncId :selected').text();
+
+            var fname = $("#txtFunc").val();
+
+            if (fname == dropdownfn) {
+
+                fid = $("#txtFuncId").val();
+
+            } else {
+
+                fid = 0;
+
+            }
+
+        pfid = 0;
+
+        var markup = "<tr class='gridRow'><td style='display:none'><input type='text' id='fid' value='" + fid + "'/></td >";
+        markup = markup +"<td style='display:none'><input type='text' id='pfid' value="+pfid+"></td>";
+            markup = markup +"<td>" + fname + "</td>";
+            markup = markup + "<td>" + appString + "</td>";
+            markup = markup + "<td>" + relString + "</td>";
+        markup = markup + "<td align='center'><span id = 'totaldays' >" + totalDays + "</span></td>";
+
+        markup = markup + "<td style='display:none'><input type='text' id='fjobj' value='" + $("#txtSingleJsonObj").val() + "'/></td>";
+        markup = markup + "<td><button class='btn btn-primary btn-sm delete-row' name='btnDel'>Delete</button></td>";
+        markup = markup + "<td><button class='btn btn-primary btn-sm modify-row' name='btnModify'>Modify</button></td><tr>";
+
+            if ($("#btnAddModal").text() != "Update") {
+
+                $("#tblGrid").append(markup);
+            } else {
+
+                rowObject.find("span:eq(0)").text(totalDays);
+                rowObject.find("input:eq(2)").val(singleFuncEstimate);
+                $("#btnAddModal").html("Add");
+            }
+
+
+            $("#myModal").modal('hide');
+            $("#txtFuncId").val(0);
+            $("#txtTotalDays").val(0);
+            $("#txtSingleJsonObj").val("");
+    });
+        //$("#tblGrid").on('click', '.delete-row', function () {
+        $("#tblGrid").on('click', '.btn.btn-primary.btn-sm.delete-row', function () {
+            var currentRow = $(this).closest("tr");
+
+            var col2 = currentRow.find("input:eq(1)").val();   //project function id
+
+            if (col2 > 0) {
+
+                if ($.trim($("#txtDeleteRow").val()).length == 0) {
+
+                    $("#txtDeleteRow").val(col2);
+
+                } else {
+
+                    $("#txtDeleteRow").val($("#txtDeleteRow").val() + "," + col2);
+
+                }
+            }
+
+
+
+            $(this).parents("tr").remove();
+
+        });
+
+        $("#tblGrid").on('click', '.btn.btn-primary.btn-sm.modify-row', function () {
+            clearDays();
+
+            $("#btnAddModal").html("Update");
+
+            var currentRow = $(this).closest("tr");
+            rowObject = currentRow;
+
+
+            var col1 = currentRow.find("input:eq(0)").val();   //function id
+            var col2 = currentRow.find("input:eq(1)").val();   //project function id
+            var col3 = currentRow.find("td:eq(2)").text(); //function name
+            var col4a = currentRow.find(":selected:eq(0)").val(); //application value
+            var col4b = currentRow.find(":selected:eq(0)").text(); //application text
+            var col5a = currentRow.find(":selected:eq(1)").val(); //release value
+            var col5b = currentRow.find(":selected:eq(1)").text(); //release text
+            var col7 = currentRow.find("input:eq(2)").val();   //json string
+
+            $("#txtSelectedFunction").text(col3);
+            //var col1 = currentRow.find("input:eq(0)").val();   //function id
+            //var col2 = currentRow.find("td:eq(1)").text(); //function name
+            //var col3a = currentRow.find(":selected:eq(0)").val(); //application value
+            //var col3b = currentRow.find(":selected:eq(0)").text(); //application text
+            //var col4a = currentRow.find(":selected:eq(1)").val(); //release value
+            //var col4b = currentRow.find(":selected:eq(1)").text(); //release text
+            //var col6 = currentRow.find("input:eq(1)").val();   //json string
+
+
+
+            var arr = col7.split("-");
+
+
+            var TotalPhase = $('.phaseClass').length;
+            var TotalRole = $('.roleClass').length;
+            var TotalEst = $('.estclass').length;
+
+
+            var CounterPhase = 0;
+            var CounterRole = 0;
+            var counterdaytextbox = 0;
+            for (i = 0; i < arr.length; i++) {
+                counterdaytextbox = 0;
+                var singleRecord = arr[i].split(",");
+
+                estId = singleRecord[0];
+                phase = singleRecord[1];
+                role = singleRecord[2];
+                day = singleRecord[3];
+                flag = singleRecord[4];
+
+                $('.daysClass').each(function (i, e) {
+
+
+                    var phaseId = $(".phaseClass").eq(CounterPhase).text();
+                    var roleId = $(".roleClass").eq(CounterRole).val()
+
+
+                    if (phaseId == phase && roleId == role) {
+                        $(this).val(day);
+                        $(".estclass").eq(counterdaytextbox).text(estId);
+                    }
+
+                    CounterPhase++;
+
+
+                    if (CounterPhase >= TotalPhase) {
+                        CounterPhase = 0;
+
+                        CounterRole++;
+                    }
+                    if (CounterRole >= TotalRole) {
+                        CounterRole = 0;
+                    }
+                    counterdaytextbox++;
+                });
+
+
+            }
+
+            $("#myModal").modal('show');
+
+        });
+
+
+
+
+        $("#btnSave").click(function () {
+            var indicator = 0;
+            $("#tblGrid").find('.gridRow').each(function () {
+
+                var currentRow = $(this).closest("tr");
+                var col1 = currentRow.find("input:eq(0)").val();
+                indicator++;
+            });
+            if (indicator == 0) {
+                alert("Please enter functionality");
+                return false;
+            }
+            updateDaysString();
+
+            var pfobj = "{";
+            var strSingleEstimate = "";
+            var strSingleFunctionEstimate = "";
+            var strAllFunctionEstimate = "";
+
+           pfobj = AssembleGateVersion();
+
+            $("#tblGrid").find('.gridRow').each(function () {
+
+                var currentRow = $(this).closest("tr");
+
+
+                var col1 = currentRow.find("input:eq(0)").val();   //function id
+                var col2 = currentRow.find("input:eq(1)").val();   //project function id
+                var col3 = currentRow.find("td:eq(2)").text(); //function name
+                var col4a = currentRow.find(":selected:eq(0)").val(); //application value
+                var col4b = currentRow.find(":selected:eq(0)").text(); //application text
+                var col5a = currentRow.find(":selected:eq(1)").val(); //release value
+                var col5b = currentRow.find(":selected:eq(1)").text(); //release text
+                var col7 = currentRow.find("input:eq(2)").val();   //json string
+                var col8 = currentRow.find("input:eq(3)").val();   //json string copy
+
+                var arr = col7.split("-");
+
+                for (i = 0; i < arr.length; i++) {
+
+                    var singleRecord = arr[i].split(",");
+
+                    estid = singleRecord[0];
+                    phase = singleRecord[1];
+                    role = singleRecord[2];
+                    day = singleRecord[3];
+                    flag = singleRecord[4];
+
+                    if (estid.length == 0) {
+                        estid = 0;
+                    }
+
+
+                    var gvid = $("#txtGateRecNo").val();
+
+                    strSingleEstimate = CreateEstimateJsonObject(gvid, estid, phase, role, day, col1, col2, col3, col4a, col5a, flag);
+
+                    if (strSingleFunctionEstimate.length > 0) {
+                        strSingleFunctionEstimate = strSingleFunctionEstimate + "," + strSingleEstimate;
+                    } else {
+
+                        strSingleFunctionEstimate = strSingleEstimate;
+                    }
+
+
+                    // strSingleFunctionEstimate = "";
+                }
+                //if (col7 != col8) {                }
+
+                if (strAllFunctionEstimate.length > 0) {
+                    strAllFunctionEstimate = strAllFunctionEstimate + "," + strSingleFunctionEstimate;
+
+
+                } else {
+
+                    strAllFunctionEstimate = strSingleFunctionEstimate;
+                }
+                strSingleFunctionEstimate = "";
+            });
+            strAllFunctionEstimate = pfobj + addQuote("estimate", 1) + "[" + strAllFunctionEstimate + "]}";
+
+            $("#txtObject").val(strAllFunctionEstimate);
+           // alert(strAllFunctionEstimate);
+            PostValues();
+        });
+
+        function updateDaysString() {
+            debugger;
+            $("#tblGrid").find('.gridRow').each(function () {
+
+                var currentRow = $(this).closest("tr");
+                var col7 = currentRow.find("input:eq(2)").val();   //json string
+                var col8 = currentRow.find("input:eq(3)").val();   //json string copyc
+                debugger
+                if (col8 == null) {
+                    col8 = col7;
+                }
+                if (col7 != col8) {
+
+                    var textJson1 = convertToJson(col7);
+                    var textJson2 = convertToJson(col8);
+
+                    var obj1 = JSON.parse(textJson1);
+                    var obj2 = JSON.parse(textJson2);
+
+                    var FinalNewdt = CompareDataTableWithKeyValue(obj1, obj2);
+                    var FinalOlddt = CompareDataTableWithKey(obj2, obj1);
+
+                    var singleUpdatedJson = "";
+
+                    $.each(FinalNewdt, function (i, obj) {
+
+                        if (obj.flag == "E") {
+                            //  alert(obj.key + " = " + obj.value + " = " + obj.flag);
+                            if (singleUpdatedJson.length > 0) {
+
+                                singleUpdatedJson = singleUpdatedJson + "-" + obj.value + "," + obj.flag;
+                            }
+                            else {
+                                singleUpdatedJson = obj.value + "," + obj.flag;
+                            }
+                        }
+
+                    });
+
+                    $.each(FinalOlddt, function (i, obj) {
+                        if (obj.flag == "D") {
+
+                            if (singleUpdatedJson.length > 0) {
+
+                                singleUpdatedJson = singleUpdatedJson + "-" + obj.value + "," + obj.flag;
+                            }
+                            else {
+                                singleUpdatedJson = obj.value + "," + obj.flag;
+                            }
+
+                        }
+
+                    });
+                    // alert();
+                    currentRow.find("input:eq(2)").val(singleUpdatedJson);
+                }
+                });
+
+
+        }
+        function CreateEstimateJsonObject(gvid,estid,phaseId, roleId, days, fid , pfid, fname, aid, rid,flag) {
+
+            var mdate = new Date().getMonth() + 1 + "-" + new Date().getDate() + "-" + new Date().getFullYear();
+            var str = "";
+           // alert(new Date().getDay());
+
+            str = "{" + addQuote("ProjFuncId", 1) + pfid+",";
+            str = str + addQuote("GateversionId", 1) + gvid+",";
+            str = str + addQuote("FuncId", 1) + fid + ",";
+            str = str + addQuote("FuncName", 1) + addQuote(fname, 0) + ",";
+            str = str + addQuote("AppId", 1) + aid + ",";
+            str = str + addQuote("RelId", 1) + rid + ",";
+            str = str + addQuote("estId", 1) + estid+",";
+            str = str + addQuote("projectFunctionId", 1) + pfid+",";
+            str = str + addQuote("estDays", 1) + days + ",";
+            str = str + addQuote("phaseCode", 1) + phaseId + ",";
+            str = str + addQuote("roleId", 1) + roleId + ",";
+            str = str + addQuote("estimatedOn", 1) + addQuote(mdate, 0) + ",";
+            str = str + addQuote("deletRows", 1) + addQuote($("#txtDeleteRow").val(), 0) + ",";
+            str = str + addQuote("flag", 1) + addQuote(flag, 0) + ",";
+            str = str + addQuote("userEstimate", 1) + addQuote("adeel", 0) + "}";
+
+            return str;
+
+        }
+
+
+        function PostValues() {
+
+            var model = JSON.parse($("#txtObject").val());
+
+            $.ajax
+                (
+                    {
+                        type: "POST",
+                        url: "/Project/Edit",
+                        data: JSON.stringify(model),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "Json",
+                        success: function (response) {
+                            $("#msg").text(response);
+                            $("#msg").css({ 'color': 'Green' });
+                          //  location.href = "/Project/Show";
+                            
+                        },
+                        failure: function (response) {
+                            $("#msg").text(response);
+
+                        },
+                        error: function (xhr) {
+
+                           $("#msg").text(xhr.status + " , "+  xhr.statusText);
+
+                        }
+                    }
+                ); // ajax
+
+
+        }
+        function addQuote(fieldname, indicator) {
+            if (indicator == 1) {
+                return "\"" + fieldname + "\":";
+            } else {
+                return "\"" + fieldname + "\"";
+            }
+        }
+        function getTotalDays() {
+
+            var day = 0;
+            $('.daysClass').each(function () {
+
+                if ($.isNumeric($(this).val())) {
+
+                    if ($(this).val() > 0) {
+                        day = day + parseFloat($(this).val());
+                    }
+                }
+
+            });
+
+            return day;
+        }
+
+        function convertToJson(str) {
+
+            var allrecord = "";
+            var arr = str.split("-");
+
+            //"93,4,1,1,X;=>convert 93,4,1,1?X
+            for (var i = 0; i < arr.length; i++) {
+
+                var n = arr[i].lastIndexOf(",");
+
+                var strx = arr[i].substring(0, n) + "?" + arr[i].substring(n + 1); //just to ignore last comma,replace last coma with ?
+            //    alert(str);
+                var n = strx.lastIndexOf(",");
+
+                var key = strx.substring(0, n);
+
+                var n = strx.lastIndexOf("?");
+
+                var value = strx.substring(0,n);
+
+                var sr = "{" + addQuote("key", 1) + addQuote(key, 0) + "," + addQuote("value", 1) + addQuote(value, 0) + "," + addQuote("flag", 1) + addQuote("X") + "}";
+               // alert(sr)
+                if (allrecord.length > 0) {
+                    allrecord = allrecord + "," + sr;
+                } else {
+                    allrecord = sr;
+                }
+
+            }
+            allrecord = "[" + allrecord + "]";
+
+            return allrecord;
+        }
+        function CompareDataTableWithKey(obj1, obj2) {
+
+            var findFlag = 0;
+
+            $.each(obj1, function (i, obj1) {
+                var Nkey = obj1.key;
+                var Nvalue = obj1.value;
+
+                findFlag = 0;
+                $.each(obj2, function (i, obj2) {
+                    var Okey = obj2.key;
+                    var Ovalue = obj2.value;
+
+                    if (Nkey == Okey) {
+
+                        findFlag = 1;
+                    }
+                });
+
+                if (findFlag == 0) {
+                    obj1.flag = "D";
+                }
+
+            });
+            return obj1;
+
+        }
+        function CompareDataTableWithKeyValue(obj1, obj2) {
+
+            var findFlag = 0;
+
+            $.each(obj1, function (i, obj1) {
+                var Nkey = obj1.key;
+                var Nvalue = obj1.value;
+                //  alert(Nkey + " = " + Nvalue);
+                findFlag = 0;
+                $.each(obj2, function (i, obj2) {
+                    var Okey = obj2.key;
+                    var Ovalue = obj2.value;
+
+                    if (Nkey == Okey) {
+                        if (Nvalue != Ovalue) {
+                            obj1.flag = "E";
+
+                        }
+                        findFlag = 1;
+                    }
+                });
+
+                if (findFlag == 0) {
+                    obj1.flag = "E";
+                }
+
+            });
+            return obj1;
+        }
+        function AssembleGateVersion() {
+
+
+            //var projectStr = "{"+addQuote("gateversion",1)+"{";
+            var projectStr = "{";
+
+            projectStr = projectStr + addQuote("gateVersion", 1) + "{";
+            projectStr = projectStr + addQuote("gvId", 1) + $("#txtGateRecNo").val() + ",";
+            projectStr = projectStr + addQuote("gvProjectId", 1) + $("#txtProjId").val()+",";
+            projectStr = projectStr + addQuote("gvGateId", 1) + $("#txtGateId").val() + ",";
+            projectStr = projectStr + addQuote("gvLine", 1) + $("#txtGateLine").val() + ",";
+            projectStr = projectStr + addQuote("gvComments", 1) + addQuote($("#txtgvComments").val(), 0) + ",";
+            projectStr = projectStr + addQuote("gvAssumption", 1) + addQuote($("#txtgvAssumption").val(), 0) + ",";
+            projectStr = projectStr + addQuote("gvStatus", 1) + addQuote($("#gvStatus").val(), 0) + "},";
+
+
+            return projectStr;
+        }
+    });
+</script>

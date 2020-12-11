@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Assesment.Models.Release>
+
+<table class="table-bordered">
+    <tr style="background-color:chartreuse">
+        <th style="width: 100px;text-align:center;">
+            @Html.DisplayName("Release Id")
+        </th>
+        <th style="width:200px;text-align:center;">
+            @Html.DisplayName("Release Name")
+        </th>
+        <th style="width:200px;text-align:center;">
+            @Html.DisplayName("Release Date")
+        </th>
+
+    </tr>
+
+@foreach (var item in Model) {
+<tr>
+    <td style="text-align:center">
+        @Html.DisplayFor(modelItem => item.releaseId)
+    </td>
+
+    <td style="text-align:center">
+        @*@Html.DisplayFor(modelItem => item.releaseName)*@
+        @{ string para = @item.releaseId + "|" + @item.releaseName+"|"+item.releaseDate;}
+        <button type="button" id="btnEdit" class="btn btn-link" onclick="sayHello('@para');">@Html.DisplayFor(modelItem => item.releaseName)</button>
+        @*<button type="button" class="btn btn-link" onclick="sayHello(@item.releaseId, '@item.releaseName');">@Html.DisplayFor(modelItem => item.releaseName)</button>*@
+    </td>
+    <td style="text-align:center">
+        @Html.DisplayFor(modelItem => item.releaseDate)
+
+    </td>
+
+</tr>
+}
+
+</table>

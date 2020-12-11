@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Assesment.Models.Application>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th style="width:150px;text-align:center;background-color:chartreuse">Application Id</th>
+            <th style="        width: 250px;   text-align: center;  background-color: chartreuse
+">Application Name</th>
+          
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="text-align:center">
+                  
+                    @Html.DisplayFor(modelItem => item.appid)
+                </td>
+                <td style="text-align:center">
+                    <button type="button" class="btn btn-link" onclick="sayHello(@item.appid, '@item.appname');">@Html.DisplayFor(modelItem => item.appname)</button>
+                   
+                </td>
+            </tr>
+        }
+
+</table>
+

@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "Update Release";
+}
+
+<h2>Release Update</h2>
+
+
+
+@using (Ajax.BeginForm("Create", "Release",
+    new AjaxOptions()
+    {
+        OnSuccess = "OnSuccessRequest",
+        OnFailure = "OnFailureRequest",
+        HttpMethod = "POST"
+    }))
+{
+
+    <div class="form-group">
+        <label for="releaseId">Release Id</label>
+        <input type="text" class="form-control" id="releaseId" name="releaseId" readonly size="10" value="0">
+        <input type="hidden" class="form-control" id="RecType" name="RecType" value="New">
+    </div>
+    <div class="form-group">
+        <label for="releaseName">Release Name</label>
+        <input type="text" class="form-control" id="releaseName" name="releaseName" required>
+    </div>
+    <div class="form-group">
+        <label for="releaseDate">Release Date</label>
+
+        <input type="text" class="form-control" id="releaseDate" autocomplete="off" name="releaseDate" required>
+
+    </div>
+    <div class="form-group form-check" id="divSaveAsNew" style="display:none">
+        <input type="checkbox" class="form-check-input" id="saveAsNew">
+        <label class="form-check-label" for="saveAsNew">Save As New</label>
+    </div>
+    <button type="submit" class="btn btn-primary" id="btnSave">Save</button>
+    <button type="button" class="btn btn-primary" id="btnCancel" style="display:none">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btnDelete" style="display:none">Delete</button>
+
+    <label id="lblMsg"></label>
+
+}
+
+
+<br />
+<div id="divShowRelease" style="position:absolute;top:90px;left:650px">
+
+    @Html.Partial("~/Views/Release/ShowRelease.cshtml")
+
+</div>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+<link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+<script src="~/Scripts/Release.js"></script>
+
+<script>
+
+    $("#releaseDate").datepicker({
+        
+        dateFormat: "dd/mm/yy",     
+        changeMonth: true,
+        changeYear: true
+
+    });
+
+    function OnSuccessRequest(response) {
+        // console.log.data;
+        $('#divShowRelease').html(response);
+
+        $("#releaseId").val("");
+        $("#releaseName").val("");
+        $("#releaseDate").val("");
+
+        $("#saveAsNew").prop("checked", false);
+        $("#divSaveAsNew").hide();
+        $("#btnDelete").hide();
+        $("#btnCancel").hide();
+
+        $("#lblMsg").css("color", "Red");
+        
+        if ($("#RecType").val() == "Delete") {
+            $("#lblMsg").text("Record Deleted");
+
+        } else {
+            $("#lblMsg").text("Record saved");
+        }
+        $("#releaseId").val("0");
+        $("#releaseName").focus()
+        $("#RecType").val("New")
+    }
+
+    function OnFailureRequest(err) {
+        console.error(err);
+        alert("error");
+
+    }
+
+    function sayHello(para) {
+
+        var fields = para.split('|');
+
+        var id = fields[0];
+        var name = fields[1];
+        var date = fields[2];
+        //  debugger
+
+        // alert(a + " " + b);
+        $("#releaseId").val(id);
+        $("#releaseName").val(name);
+        $("#releaseDate").val(date);
+        $("#divSaveAsNew").css('display', 'flex');
+        $("#btnDelete").css('display', 'inline');
+        $("#btnCancel").css('display', 'inline');
+        $("#lblMsg").text("");
+        $("#RecType").val("Edit")
+
+    }
+</script>
+

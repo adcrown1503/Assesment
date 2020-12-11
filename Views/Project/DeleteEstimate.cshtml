@@ -1,0 +1,50 @@
+﻿<h2>Please Note:Whole project will be deleted if this is the only estimate in project</h2>
+<br>
+<h2>Are you sure to delete this estimate</h2>
+<input type="hidden" id="pid" value="@ViewBag.pid" />
+<input type="hidden" id="gid" value="@ViewBag.gid" />
+<input type="hidden" id="gl" value="@ViewBag.gl" />
+
+@using (Html.BeginForm("RemoveEstimate", "Project", new { pid = ViewBag.pid,gid=ViewBag.gid,gl=ViewBag.gl }))
+{
+
+    <input type="submit" class="button" value="Yes">
+    <input type="button" class="button" value="No" id="btnNo">
+}
+
+
+
+
+
+
+
+
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $("#btnNo").click(function () {
+
+
+
+            var para = "?projectId=" + $("#pid").val() + "&gateId=" + $("#gid").val() + "&gateLine=" + $("#gl").val();
+            window.location.href = '@Url.Action("GateDetail", "Project")' +  para;
+
+        });
+           @*$("#btnYes").click(function () {
+
+
+            var para = "?pid="+$("#pid").val()+"&gid="+$("#gid").val()+"&gl="+$("#gl").val();
+            window.location.href = '@Url.Action("RemoveEstimate", "Project")' +  para;
+
+        });*@
+
+
+
+    });
+
+</script>

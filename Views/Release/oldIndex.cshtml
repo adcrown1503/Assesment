@@ -1,0 +1,65 @@
+﻿
+@{
+    ViewBag.Title = "Update Release";
+}
+
+<h2>Index</h2>
+<script>
+    function sayHello(para) {
+
+        var fields = para.split('|');
+
+        var id = fields[0];
+        var name = fields[1];
+        var date = fields[2];
+        debugger
+
+        // alert(a + " " + b);
+        $("#txtRelId").val(id);
+        $("#txtRelName").val(name);
+        $("#txtRelDate").val(date);
+        $("#divSaveAsNew").css('display', 'flex');
+        $("#btnDelete").css('display', 'inline');
+        $("#btnCancel").css('display', 'inline');
+        $("#lblMsg").text("");
+
+    }
+
+</script>
+
+<form id="ReleaseForm" name="ReleaseForm">
+
+    <div class="form-group">
+        <label for="txtRelId">Release Id</label>
+        <input type="text" class="form-control" id="txtRelId"   name="txtRelId" readonly size="10" value="0">
+        <input type="text" class="form-control" id="txtDeleteId">
+    </div>
+    <div class="form-group">
+        <label for="txtRelName">Release Name</label>
+        <input type="text" class="form-control" id="txtRelName" name="txtRelName" required>
+    </div>
+    <div class="form-group">
+        <label for="txtRelDate">Release Date</label>
+        <input type="text" class="form-control" id="txtRelDate" name="txtRelDate" required>
+    </div>
+    <div class="form-group form-check" id="divSaveAsNew">
+        <input type="checkbox" class="form-check-input" id="saveAsNew">
+        <label class="form-check-label" for="saveAsNew">Save As New</label>
+    </div>
+    <button type="submit" class="btn btn-primary" id="btnSave">Save</button>
+    <button type="button" class="btn btn-primary" id="btnCancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btnDelete">Delete</button>
+
+    <label id="lblMsg"></label>
+</form>
+<br />
+<div id="divShowRelease" style="position:absolute;top:90px;left:650px">
+
+    @Html.Partial("~/Views/Release/ShowRelease.cshtml")
+
+</div>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/Release.js"></script>

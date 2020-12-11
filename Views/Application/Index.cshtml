@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<script>
+    function sayHello(id, name) {
+        // alert(a + " " + b);
+        $("#txtAppId").val(id);
+        $("#txtAppName").val(name);
+        $("#divSaveAsNew").css('display', 'flex');
+        $("#btnDelete").css('display', 'inline');
+        $("#btnCancel").css('display', 'inline');
+        $("#lblError").text("");
+
+    }
+
+</script>
+<br />
+
+<form>
+
+    <div class="form-group">
+        <label for="txtAppId">Application Id</label>
+        <input type="text" class="form-control" id="txtAppId" readonly size="10">
+        <input type="hidden" class="form-control" id="txtDeleteId">
+    </div>
+    <div class="form-group">
+        <label for="txtAppName">Application Name</label>
+        <input type="text" class="form-control" id="txtAppName">
+    </div>
+    <div class="form-group form-check" id="divSaveAsNew">
+        <input type="checkbox" class="form-check-input" id="saveAsNew">
+        <label class="form-check-label" for="saveAsNew">Save As New</label>
+    </div>
+    <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+    <button type="button" class="btn btn-primary" id="btnCancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btnDelete">Delete</button>
+
+    <label id="lblError"></label>
+</form>
+<br />
+<div id="divShowApps" style="position:absolute;top:90px;left:650px">
+
+    @Html.Partial("~/Views/Application/ShowApps.cshtml")
+
+</div>
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/Application.js"></script>

@@ -1,0 +1,4 @@
+﻿@model Assesment.Models.WrapperViewEditProject
+
+    @*<label style="vertical-align:middle">Available Gates</label>*@
+    @Html.DropDownList("AppGates", new SelectList(Model.gateList, "gateId", "gateDesc"),"Select Gate", new { @class = "form-control" })

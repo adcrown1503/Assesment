@@ -1,0 +1,186 @@
+﻿@model Assesment.Models.WrapperViewEditProject
+@{
+    ViewBag.Title = "Update Project";
+}
+
+<div class="form-horizontal">
+    <br /><br />
+
+    @using (Html.BeginForm("SaveProjectInfo", "Project", null, FormMethod.Post, new { @id = "myForm", @name = "myForm" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.id, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+
+                    @Html.EditorFor(model => model.project.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(model => model.project.id, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.name, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.project.name, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.project.name, null, new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.assesmentDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.project.assesmentDate, new { htmlAttributes = new { @class = "datepicker form-control" } })
+                    @Html.ValidationMessageFor(model => model.project.assesmentDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.desiredReleaseDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.project.desiredReleaseDate, new { htmlAttributes = new { @class = "datepicker form-control" } })
+                    @Html.ValidationMessageFor(model => model.project.desiredReleaseDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.impactType, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @*@Html.EditorFor(model => model.project.impactType, new { htmlAttributes = new { @class = "form-control" } })*@
+                    @Html.DropDownList("project.impactType", new List<SelectListItem>(){
+                              new SelectListItem() { Value = "None", Text = "None" },
+                              new SelectListItem() { Value = "Minor", Text = "Minor" },
+                              new SelectListItem() { Value = "Medium", Text = "Medium" },
+                              new SelectListItem() { Value = "Large", Text = "Large" },
+                              new SelectListItem() { Value = "Very Large", Text = "Very Large" },
+                         }, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.project.impactType, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.assumption, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.project.assumption, new { columns = 5, rows = 3, @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.project.assumption, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.comments, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.project.comments, new { columns = 5, rows = 3, @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.project.comments, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.project.statusId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownListFor(model => model.project.statusId, new SelectList(Model.statusList, "statusId", "statusName", Model.project.statusId), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.project.statusId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="button" id="btnSave" value="Save Project Info" class="btn btn-primary btn-sm" /><span id="msg"></span>
+                </div>
+            </div>
+        </div>
+    }
+    <div id="projectGates" style="position:absolute;top:90px;left:650px">
+        <table border="1">
+            <tr><td style="background-color:greenyellow">Available Gates</td></tr>
+            @foreach (var item in Model.projectGateList)
+            {
+                @*<tr><td>@item.gateDesc</td></tr>*@
+                <tr><td>@Html.ActionLink(item.gateDesc, "GateDetail", new { projectId = item.projectId, gateId = item.gateId, gateLine = item.gateLine })</td></tr>
+            }
+        </table>
+    </div>
+</div>
+
+<link href="~/Content/themes/base/datepicker.css" rel="stylesheet" />
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker({
+            dateFormat: "dd/mm/yy"
+        });
+        $("#btnSave").click(function () {
+            //$("#myForm").submit();
+            //if (!$("#myForm").valid()) {
+
+            //    return false;
+            //}
+            //  alert("saving record");
+            // $("#msg").text("Information saved");
+            // $("#msg").css({ 'color': 'Green' });
+            debugger
+            postvalues();
+        });
+
+        function AssembleProject() {
+
+
+            var projectStr = "{\"project\":{";
+
+            projectStr = projectStr + addQuote("id", 1) + $("#txtProjectId").val() + ",";
+            projectStr = projectStr + addQuote("name", 1) + addQuote($("#txtProjectName").val(), 0) + ",";
+            projectStr = projectStr + addQuote("assesmentDate", 1) + addQuote($("#txtAssesmentDate").val(), 0) + ",";
+            projectStr = projectStr + addQuote("desiredReleaseDate", 1) + addQuote($("#txtDesiredDate").val(), 0) + ",";
+            projectStr = projectStr + addQuote("impactType", 1) + addQuote($("#txtImpactType").val(), 0) + ",";
+            projectStr = projectStr + addQuote("assumption", 1) + addQuote($("#txtAssumption").val(), 0) + ",";
+            projectStr = projectStr + addQuote("comments", 1) + addQuote($("#txtComments").val(), 0) + ",";
+            projectStr = projectStr + addQuote("statusId", 1) + $("#projectStatus_statusId").val();
+            projectStr = projectStr + "}";
+
+
+
+
+            return projectStr;
+        }
+        function postvalues() {
+
+            var form_data = $("#myForm").serialize();
+            $.ajax
+                (
+                    {
+                        type: "POST",
+                        url: "/Project/SaveProjectInfo",
+                        data: form_data,
+                        /// contentType: "application/json; charset=utf-8",
+                        // dataType: "Json",
+                        success: function (response) {
+                            $("#msg").text(response);
+                            $("#msg").css({ 'color': 'Green' });
+                            //location.href = "/Project/Show";
+                            // top.location.href = '/Home/Index';
+                        },
+                        failure: function (response) {
+                            $("#msg").text(response);
+                            $("#msg").css({ 'color': 'red' });
+                        },
+                        error: function (xhr) {
+
+                            $("#msg").text(xhr.status + " , " + xhr.statusText);
+                            $("#msg").css({ 'color': 'blue' });
+                        }
+                    }
+                ); // ajax
+        }
+
+    });
+
+</script>

@@ -1,0 +1,16 @@
+2020-12-06 21:56:36.8498 INFO Editing Project
+2020-12-06 23:28:37.0848 INFO Creating User
+2020-12-06 23:32:19.0493 INFO Creating User
+2020-12-06 23:32:40.7437 INFO Creating User
+2020-12-06 23:34:12.5654 INFO Creating User
+2020-12-06 23:35:21.3539 INFO Creating User
+2020-12-06 23:37:34.0991 INFO Creating User
+2020-12-06 23:37:34.9844 ERROR Error Creating UserValidation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+2020-12-06 23:42:35.6603 INFO Creating User
+2020-12-06 23:42:36.5268 ERROR Error Creating UserValidation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+2020-12-06 23:42:43.6722 INFO Creating User
+2020-12-06 23:42:44.2710 ERROR Error Creating UserAn error occurred while updating the entries. See the inner exception for details.
+2020-12-06 23:43:32.7999 INFO Creating User
+2020-12-06 23:45:54.0400 INFO Creating User
+2020-12-06 23:52:20.9004 INFO Creating User
+2020-12-06 23:52:22.2295 INFO User Successfully Created
