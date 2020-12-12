@@ -164,18 +164,18 @@ namespace Assesment.Controllers
         [HttpPost]
         public ActionResult Edit(WrapperUpdateProject model)
         {
-            bool result=false;
+            ActionResponse ar = new ActionResponse();
             string output = "";
             MyLogger.GetInstance().Info("Updating Gate Info .." + model.gateVersion.gvProjectId);
 
             if (ModelState.IsValid)
             {
                 ProjectManager pm = new ProjectManager();
-                result = pm.UpdateGateInfo(model);
+                ar = pm.UpdateGateInfo(model);
 
-                if (!result)
+                if (!ar.IsSuccess)
                 {
-                    return RedirectToAction("ErrorView", "Project", new { msg = "Error updating gate information" });
+                    return RedirectToAction("ErrorView", "Project", new { msg = ar.ErrorMsg});
                 }
                 else
                 {
@@ -632,68 +632,20 @@ namespace Assesment.Controllers
         [HttpPost]
 
         public ActionResult RemoveEstimate(int pid, int gid, int gl)
-
         {
-            System.Diagnostics.Debug.WriteLine("hello");
-            using (DatabaseContext db = new DatabaseContext())
+            ProjectManager pm = new ProjectManager();
+            ActionResponse ar = new ActionResponse();
+            ar = pm.GateRemove(pid, gid, gl);
+            if (ar.IsSuccess)
             {
-                using (DbContextTransaction transaction = db.Database.BeginTransaction())
-                {
-                    try
-                    {
-
-                        GateVersion gv = db.GateVersions.Where(x => x.gvProjectId == pid && x.gvGateId == gid && x.gvLine == gl).First();
-                        List<ProjectFunction> listfunc = db.ProjectFunctions.Where(x => x.GateversionId == gv.gvId).ToList();
-                        foreach (var item in listfunc)
-                        {
-                            List<Estimate> listEstimate = db.Estimates.Where(x => x.projectFunctionId == item.ProjFuncId).ToList();
-                            foreach (var obj in listEstimate)
-                            {
-                                db.Entry(obj).State = EntityState.Deleted;
-                                db.SaveChanges();
-                            }
-                            db.Entry(item).State = EntityState.Deleted;
-                            db.SaveChanges();
-                        }
-                        db.Entry(gv).State = EntityState.Deleted;
-                        db.SaveChanges();
-
-                        List<EstimateAttachment> listattachmets = db.EstimateAttachments.
-                            Where(x => x.projectId == pid && x.gateId == gid && x.lineNo == gl).ToList();
-                        foreach (var item in listattachmets)
-                        {
-                            db.Entry(item).State = EntityState.Deleted;
-                            db.SaveChanges();
-                        }
-                        var count = db.GateVersions.Count(t => t.gvProjectId == pid);
-
-                        if (count == 0)
-                        {
-                            Project prj = db.Projects.Where(x => x.id == pid).First();
-                            db.Entry(prj).State = EntityState.Deleted;
-                            db.SaveChanges();
-                        }
-                        transaction.Commit();
-
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        transaction.Rollback();
-                        //var msg = "";
-                        if (ex.InnerException.Message != null)
-                        {
-                            msg = ex.InnerException.Message;
-                        }
-                        else
-                        {
-                            msg = ex.Message;
-                        }
-                        return RedirectToAction("IndexError", "Project", new { msg = msg });
-
-                    }
-                }
+                return RedirectToAction("Show", "Project"); 
             }
-            return RedirectToAction("Show", "Project"); ;
+            else
+            {
+
+                return RedirectToAction("IndexError", "Project", new { msg = ar.ErrorMsg });
+            }
+            
         }
         [HttpGet]
 

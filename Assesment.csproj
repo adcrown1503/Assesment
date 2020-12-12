@@ -136,7 +136,6 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
-    <Compile Include="Controllers\ForGitController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProjectController.cs" />
     <Compile Include="Controllers\ReleaseController.cs" />

@@ -16,10 +16,10 @@ namespace Assesment.Models
         bool SaveProjectInfo(WrapperViewEditProject wvep);
 
         WrapperViewEditProject GetViewForUpdateGate(int projectId, int gateId, int gateLine);
-        bool UpdateGateInfo(WrapperUpdateProject wup);
+        ActionResponse UpdateGateInfo(WrapperUpdateProject wup);
 
         ActionResponse GateSaveAs(int projectid, int gateid, int line, int newgate);
 
-        
+        ActionResponse GateRemove(int pid, int gid, int gl);
     }
 }

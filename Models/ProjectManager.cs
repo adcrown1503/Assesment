@@ -420,10 +420,10 @@ namespace Assesment.Models
 
 
         }
-        public bool UpdateGateInfo(WrapperUpdateProject model)
+        public ActionResponse UpdateGateInfo(WrapperUpdateProject model)
         {
-            bool output = false;
-
+            //bool output = false;
+            ActionResponse ar = new ActionResponse();
 
             if (model.estimate != null)
             {
@@ -537,7 +537,7 @@ namespace Assesment.Models
 
                             MyLogger.GetInstance().Info("gate info updated successfully.." + model.gateVersion.gvProjectId);
 
-                            output = true;
+                            ar.IsSuccess = true;
                         }
                         catch (Exception ex)
                         {
@@ -545,15 +545,21 @@ namespace Assesment.Models
                             MyLogger.GetInstance().Error("Error - updating gate info " + ex.Message);
 
                             transaction.Rollback();
-                            output = false;
+                            ar.IsSuccess = false;
+                            ar.ErrorMsg = "Database exception";
                         };
 
                     }
 
                 }
             }
+            else
+            {
+                ar.IsSuccess = false;
+                ar.ErrorMsg = "Model invalid";
+            }
 
-            return output;
+            return ar;
         }
         public ActionResponse GateSaveAs(int projectid, int gateid, int line, int newgate)
         {
@@ -586,6 +592,77 @@ namespace Assesment.Models
 
             return ar;
 
+        }
+        public ActionResponse GateRemove(int pid, int gid, int gl)
+        {
+            ActionResponse ar = new ActionResponse();
+
+            using (DatabaseContext db = new DatabaseContext())
+            {
+                using (DbContextTransaction transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+
+                        GateVersion gv = db.GateVersions.Where(x => x.gvProjectId == pid && x.gvGateId == gid && x.gvLine == gl).First();
+                        List<ProjectFunction> listfunc = db.ProjectFunctions.Where(x => x.GateversionId == gv.gvId).ToList();
+                        foreach (var item in listfunc)
+                        {
+                            List<Estimate> listEstimate = db.Estimates.Where(x => x.projectFunctionId == item.ProjFuncId).ToList();
+                            foreach (var obj in listEstimate)
+                            {
+                                db.Entry(obj).State = EntityState.Deleted;
+                                db.SaveChanges();
+                            }
+                            db.Entry(item).State = EntityState.Deleted;
+                            db.SaveChanges();
+                        }
+                        db.Entry(gv).State = EntityState.Deleted;
+                        db.SaveChanges();
+
+                        List<EstimateAttachment> listattachmets = db.EstimateAttachments.
+                            Where(x => x.projectId == pid && x.gateId == gid && x.lineNo == gl).ToList();
+                        foreach (var item in listattachmets)
+                        {
+                            db.Entry(item).State = EntityState.Deleted;
+                            db.SaveChanges();
+                        }
+                        var count = db.GateVersions.Count(t => t.gvProjectId == pid);
+
+                        if (count == 0)
+                        {
+                            Project prj = db.Projects.Where(x => x.id == pid).First();
+                            db.Entry(prj).State = EntityState.Deleted;
+                            db.SaveChanges();
+                        }
+                        transaction.Commit();
+
+                        ar.SuccessMsg = "Gate remove successfully";
+                        ar.IsSuccess = true;
+                        MyLogger.GetInstance().Info(ar.SuccessMsg);
+
+                        
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+
+                        ar.IsSuccess = false;
+
+                        if (ex.InnerException.Message != null)
+                        {
+                            ar.ErrorMsg = ex.InnerException.Message;
+                        }
+                        else
+                        {
+                            ar.ErrorMsg = ex.Message;
+                        }
+                        MyLogger.GetInstance().Error("Error - Gate removal " + pid);
+                        MyLogger.GetInstance().Error(ar.ErrorMsg);
+                    }
+                }
+            }
+                return ar;
         }
     } ///////////
 }
