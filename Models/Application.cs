@@ -9,6 +9,7 @@ using System.Web;
 namespace Assesment.Models
 {
     [Table("APPLICATION")]
+    //[Table("APPLICATION", Schema= "ART")]
     public class Application
     {
         [Key]

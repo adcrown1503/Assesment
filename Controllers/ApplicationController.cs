@@ -14,17 +14,15 @@ namespace Assesment.Controllers
         
         public ActionResult Index()
         {
-            try {
-                DatabaseContext db = new DatabaseContext();
-                List<Application> applist = db.Applications.OrderByDescending(f => f.appid).ToList();
-                return View(applist);
-            }
-            catch(Exception ex)
-            {
-                return RedirectToAction("IndexError", "Project", new { msg = ex.Message });
+            DbManagerFactory dbm = new DbManagerFactory(ProjectBaseClass.dbType());
 
-            }
-          
+            IProject ip = dbm.GetDbManager();
+
+            List<Application> applist;
+            
+            applist = ip.GetApplications();
+            
+            return View(applist);
         }
 
         [HttpGet]
@@ -65,31 +63,28 @@ namespace Assesment.Controllers
         {
 
             MyLogger.GetInstance().Info("Updating Application");
+
             List<Application> applist=null;
+
             if (ModelState.IsValid)
             {
-                DatabaseContext db = new DatabaseContext();
-                db.Applications.Add(app);
 
-                if (app.appid > 0 && saveasnew == "OFF")
+                DbManagerFactory dbm = new DbManagerFactory(ProjectBaseClass.dbType());
+
+                IProject ip = dbm.GetDbManager();
+
+                ActionResponse ar = new ActionResponse();
+
+                ar=ip.UpdateApplication(app, saveasnew);
+
+                if (!ar.IsSuccess)
                 {
-                    db.Entry(app).State = EntityState.Modified;
-
+                    //return RedirectToAction("ErrorView", "Project", new { message = ar.ErrorMsg });
                 }
 
-                if (app.appid > 0 && saveasnew == "Delete")
-                {
-                    db.Entry(app).State = EntityState.Deleted;
-                }
-                    
-
-                db.SaveChanges();
-                // return RedirectToAction("Index");
-
-                applist = db.Applications.OrderByDescending(f=>f.appid).ToList();
-                MyLogger.GetInstance().Info("Application Updated Successfully");
+                applist = ar.obj;
             }
-            
+
             return PartialView("~/Views/Application/ShowApps.cshtml", applist);
             //  return Json(app, JsonRequestBehavior.AllowGet);
         }

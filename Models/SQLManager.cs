@@ -7,7 +7,7 @@ using System.Web;
 
 namespace Assesment.Models
 {
-    public class ProjectManager : IProject
+    public class SQLManager : IProject
     {
         public bool AddNewProject(WrapperUpdateProject model)
         {
@@ -663,6 +663,54 @@ namespace Assesment.Models
                 }
             }
                 return ar;
+        }
+
+        public ActionResponse UpdateApplication(Application app,string saveasnew)
+        {
+            ActionResponse ar = new ActionResponse();
+            List<Application> applist = null;
+            try
+            {
+                DatabaseContext db = new DatabaseContext();
+                
+                db.Applications.Add(app);
+
+                if (app.appid > 0 && saveasnew == "OFF")
+                {
+                    db.Entry(app).State = EntityState.Modified;
+
+                }
+
+                if (app.appid > 0 && saveasnew == "Delete")
+                {
+                    db.Entry(app).State = EntityState.Deleted;
+                }
+
+
+                db.SaveChanges();
+
+                MyLogger.GetInstance().Info("Application Updated Successfully");
+
+                applist = db.Applications.OrderByDescending(f => f.appid).ToList();
+                ar.IsSuccess = true;
+                ar.obj = applist;
+            }
+            catch (Exception ex)
+            {
+                ar.IsSuccess = false;
+                MyLogger.GetInstance().Error("Error - adding application");
+                MyLogger.GetInstance().Error("--------------------------");
+                MyLogger.GetInstance().Error(ex.Message);
+
+            }
+            return ar;
+        }
+
+        public List<Application> GetApplications()
+        {
+            DatabaseContext db = new DatabaseContext();
+            List<Application> applist = db.Applications.OrderByDescending(f => f.appid).ToList();
+            return applist;
         }
     } ///////////
 }

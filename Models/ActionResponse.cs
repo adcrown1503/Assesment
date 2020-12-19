@@ -12,6 +12,8 @@ namespace Assesment.Models
         public string SuccessMsg { get; set; }
         public bool IsSuccess { get; set; }
 		public string test {get;set;}
+
+        public dynamic obj { get; set; }
        
     }
 }

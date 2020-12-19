@@ -18,9 +18,11 @@ namespace Assesment.Controllers
     
     public class ProjectController : Controller
     {
-        public string msg { get; set; }
+        public string msg;
+        public string dbType= "Oracle";
+       
 
-       // private static Logger logger = LogManager.GetLogger("myAppLoggerRules");
+        // private static Logger logger = LogManager.GetLogger("myAppLoggerRules");
 
         [HttpPost]
         public ActionResult UploadFile(FormCollection forms, HttpPostedFileBase file) //
@@ -106,7 +108,7 @@ namespace Assesment.Controllers
                 {
 
                     result = "No";
-
+                    MyLogger.GetInstance().Error(ex.Message);
                 }
 
 
@@ -154,7 +156,7 @@ namespace Assesment.Controllers
             int line = Convert.ToInt32(forms[forms.AllKeys[2]]);
             int newgate = Convert.ToInt32(forms[forms.AllKeys[3]]);
 
-            ProjectManager pm = new ProjectManager();
+            SQLManager pm = new SQLManager();
             ActionResponse ar=pm.GateSaveAs(projectid, gateid, line, newgate);
 
 
@@ -170,7 +172,7 @@ namespace Assesment.Controllers
 
             if (ModelState.IsValid)
             {
-                ProjectManager pm = new ProjectManager();
+                SQLManager pm = new SQLManager();
                 ar = pm.UpdateGateInfo(model);
 
                 if (!ar.IsSuccess)
@@ -204,7 +206,7 @@ namespace Assesment.Controllers
 
             if (ModelState.IsValid)
             {
-                ProjectManager pm = new ProjectManager();
+                SQLManager pm = new SQLManager();
 
                 bool result= pm.AddNewProject(model);
 
@@ -302,9 +304,11 @@ namespace Assesment.Controllers
 
              MyLogger.GetInstance().Info("Creating Project");
 
-            ProjectManager cvp = new ProjectManager();
+            DbManagerFactory dbm = new DbManagerFactory(ProjectBaseClass.dbType());
 
-            WrapperViewNewProject nvp = cvp.GetViewForNewProject();
+            IProject Dbm = dbm.GetDbManager();
+
+            WrapperViewNewProject nvp = Dbm.GetViewForNewProject();
 
                        
             if (nvp == null)
@@ -324,7 +328,7 @@ namespace Assesment.Controllers
         {
             MyLogger.GetInstance().Info("Editing Project");
 
-            ProjectManager pm = new ProjectManager();
+            SQLManager pm = new SQLManager();
            
             return View(pm.ShowProjects());
         }
@@ -340,7 +344,7 @@ namespace Assesment.Controllers
 
             if (ModelState.IsValid)
             {
-                ProjectManager pm = new ProjectManager();
+                SQLManager pm = new SQLManager();
                 result=pm.SaveProjectInfo(we);
 
                 if (result == false)
@@ -366,7 +370,7 @@ namespace Assesment.Controllers
             //string msg = "";
             MyLogger.GetInstance().Info("Editing Project");
 
-            ProjectManager pm = new ProjectManager();
+            SQLManager pm = new SQLManager();
 
             WrapperViewEditProject wp = pm.GetViewForUpdateProject(id);
 
@@ -390,7 +394,7 @@ namespace Assesment.Controllers
 
             MyLogger.GetInstance().Info("Getting Gate Details");
 
-            ProjectManager pm = new ProjectManager();
+            SQLManager pm = new SQLManager();
 
 
             WrapperViewEditProject wp = pm.GetViewForUpdateGate(projectId,gateId,gateLine);
@@ -633,7 +637,7 @@ namespace Assesment.Controllers
 
         public ActionResult RemoveEstimate(int pid, int gid, int gl)
         {
-            ProjectManager pm = new ProjectManager();
+            SQLManager pm = new SQLManager();
             ActionResponse ar = new ActionResponse();
             ar = pm.GateRemove(pid, gid, gl);
             if (ar.IsSuccess)

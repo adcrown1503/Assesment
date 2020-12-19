@@ -46,6 +46,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.78\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.Oracle, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.Oracle.2.0.1\lib\net461\Dapper.Oracle.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -55,6 +61,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.7.5\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.19.10.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess.EntityFramework, Version=6.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.EntityFramework.19.7.0\lib\net45\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -147,6 +159,7 @@
     <Compile Include="Models\Application.cs" />
     <Compile Include="Models\ContactModel.cs" />
     <Compile Include="Models\DatabaseContext.cs" />
+    <Compile Include="Models\DbManagerFactory.cs" />
     <Compile Include="Models\ErrorModel.cs" />
     <Compile Include="Models\Estimate.cs" />
     <Compile Include="Models\EstimateAttachment.cs" />
@@ -159,7 +172,10 @@
     <Compile Include="Models\ILogger.cs" />
     <Compile Include="Models\IProject.cs" />
     <Compile Include="Models\MyLogger.cs" />
-    <Compile Include="Models\ProjectManager.cs" />
+    <Compile Include="Models\OracleDbContext.cs" />
+    <Compile Include="Models\OracleManager.cs" />
+    <Compile Include="Models\ProjectBaseClass.cs" />
+    <Compile Include="Models\SQLManager.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\WrapperUpdateProject.cs" />
     <Compile Include="Models\PersonModel.cs" />
