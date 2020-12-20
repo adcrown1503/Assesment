@@ -64,22 +64,39 @@ namespace Assesment.Models
             try
             {
                 
-
-                db.Applications.Add(app);
-
                 if (app.appid > 0 && saveasnew == "OFF")
                 {
-                    db.Entry(app).State = EntityState.Modified;
+                    db.Applications.Add(app);
 
+                    db.Entry(app).State = EntityState.Modified;
+                    
+                    db.SaveChanges();
                 }
 
                 if (app.appid > 0 && saveasnew == "Delete")
                 {
+                    db.Applications.Add(app);
+
                     db.Entry(app).State = EntityState.Deleted;
+                    
+                    db.SaveChanges();
                 }
 
+                if (app.appid > 0 && saveasnew=="ON")
+                {
+                    app.appid = GetSequenceNo("Select SEQ_APP.NEXTVAL FROM DUAL");
+                    ExecuteSql("insert into application values(" + app.appid + "," + "'" + app.appname + "')");
+                 //   db.Entry(app).State = EntityState.Added;
+                }
 
-                db.SaveChanges();
+                if (app.appid== 0)
+                {
+                    app.appid = GetSequenceNo("Select SEQ_APP.NEXTVAL FROM DUAL");
+                    ExecuteSql("insert into application values(" + app.appid + "," + "'" + app.appname + "')");
+                   // db.Entry(app).State = EntityState.Added;
+                }
+
+             
 
                 MyLogger.GetInstance().Info("Application Updated Successfully");
                 ar.IsSuccess = true;
@@ -92,6 +109,9 @@ namespace Assesment.Models
                 MyLogger.GetInstance().Error("--------------------------");
                 MyLogger.GetInstance().Error(ex.Message);
 
+                //db.Entry(app).State = EntityState.Added;
+                //db.SaveChanges();
+
             }
             applist = db.Applications.OrderByDescending(f => f.appid).ToList();
 
@@ -102,6 +122,21 @@ namespace Assesment.Models
         public ActionResponse UpdateGateInfo(WrapperUpdateProject wup)
         {
             throw new NotImplementedException();
+        }
+
+        public void ExecuteSql(string sql)
+        {
+            OracleDbContext db = new OracleDbContext();
+            //int newId = db.Database.SqlQuery<int>(sql).First();
+             db.Database.ExecuteSqlCommand(sql);           
+           // return newId;
+        }
+        public int GetSequenceNo(string sql)
+        {
+            OracleDbContext db = new OracleDbContext();
+            int newId = db.Database.SqlQuery<int>(sql).First();
+           // int newId = db.Database.ExecuteSqlCommand(sql);           
+            return newId;
         }
     }
 }

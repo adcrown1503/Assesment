@@ -712,5 +712,7 @@ namespace Assesment.Models
             List<Application> applist = db.Applications.OrderByDescending(f => f.appid).ToList();
             return applist;
         }
+
+    
     } ///////////
 }
